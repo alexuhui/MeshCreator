@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEditor;
 using System;
 using System.IO;
+using Object = UnityEngine.Object;
 
 public class Creator
 {
@@ -29,12 +30,14 @@ public class Creator
     private MeshSetting newSetting;
     private Mesh newMesh;
 
+    //private AssetEndNameEditAction assetEndNameEditAction;
 
     private string name;
 
     public virtual void OnEnable()
     {
         name = string.Format("{0}生成器", shape);
+        //assetEndNameEditAction = ScriptableObject.CreateInstance<AssetEndNameEditAction>();
     }
 
     public virtual void OnDisable()
@@ -67,7 +70,12 @@ public class Creator
         {
             newSetting = createSetting();
             Action cb = () =>{ setting = newSetting; };
-            ProjectWindowUtil.StartNameEditingIfProjectWindowExists(newSetting.GetInstanceID(), new AssetEndNameEditAction(newSetting, cb), string.Format("Assets/Setting/Conf/{0}_mesh_setting", defName), AssetPreview.GetMiniThumbnail(newSetting), ".asset");
+            ProjectWindowUtil.StartNameEditingIfProjectWindowExists(
+                newSetting.GetInstanceID(),
+                GetEndNameEditAction(newSetting, cb), 
+                string.Format("Assets/Setting/Conf/{0}_mesh_setting", defName), 
+                AssetPreview.GetMiniThumbnail(newSetting), 
+                ".asset");
         }
         GUILayout.EndHorizontal();
         DrawSettingProperty();
@@ -104,55 +112,13 @@ public class Creator
         newMesh.colors = colors;
         newMesh.triangles = triangles;
 
-        ProjectWindowUtil.StartNameEditingIfProjectWindowExists(newMesh.GetInstanceID(), new AssetEndNameEditAction(newMesh), string.Format("Assets/Res/Mesh/{0}_mesh", defName), AssetPreview.GetMiniThumbnail(newMesh), ".mesh");
+        ProjectWindowUtil.StartNameEditingIfProjectWindowExists(newMesh.GetInstanceID(), GetEndNameEditAction(newMesh), string.Format("Assets/Res/Mesh/{0}_mesh", defName), AssetPreview.GetMiniThumbnail(newMesh), ".mesh");
     }
 
-    protected virtual void OnConfirm(int instanceId, string pathName, string resourceFile)
+    private AssetEndNameEditAction GetEndNameEditAction(Object obj, Action cb = null)
     {
-        UnityEngine.Object obj = null;
-        if(newSetting?.GetInstanceID() == instanceId)
-        {
-            obj = newSetting;
-        }else if(newMesh?.GetInstanceID() == instanceId)
-        {
-            obj = newMesh;
-        }
-
-        //if (obj == null) return;
-        string path = pathName + resourceFile;
-        //var ori = AssetDatabase.LoadAssetAtPath(path, obj.GetType());
-        //if (ori != null)
-        //{
-        //    if(!EditorUtility.DisplayDialog("文件已存在", string.Format("{0}已存在，是否覆盖？", path), "覆盖", "取消"))
-        //    {
-        //        Debug.LogFormat("取消了 {0} 的创建", path);
-        //        return;
-        //    }
-        //    AssetDatabase.DeleteAsset(path);
-        //}
-
-        SaveAsset(obj, path);
-    }
-
-    private void SaveAsset(UnityEngine.Object obj, string path)
-    {
-        AssetDatabase.CreateAsset(obj, path);
-        AssetDatabase.SaveAssets();
-        AssetDatabase.Refresh();
-    }
-
-    protected virtual void OnCancel(int instanceId, string pathName, string resourceFile)
-    {
-        if(newSetting != null)
-        {
-            UnityEngine.Object.Destroy(newSetting);
-            newSetting = null;
-        }    
-        if(newMesh != null)
-        {
-            UnityEngine.Object.Destroy(newMesh);
-            newMesh = null;
-        }
-        Debug.LogFormat("OnCancel instanceId {0}  pathName {1}  resourceFile {2}", instanceId, pathName, resourceFile);
+        var o = ScriptableObject.CreateInstance<AssetEndNameEditAction>();
+        o.Init(obj, cb);
+        return o;
     }
 }

@@ -10,7 +10,7 @@ public class RectMeshCreator:Creator
         shape = "矩形";
         defName = "rect";
         createSetting = () => {
-            return new RectMeshSetting();
+            return ScriptableObject.CreateInstance<RectMeshSetting>();
         };
 
         base.OnEnable();
@@ -116,15 +116,15 @@ public class RectMeshCreator:Creator
     {
         if (max <= 0) return default;
         float half = max / 2f;
-        var col = new Color(Mathf.Min(i, max - i)/ half, 0, 0, 1);
+        var col = new Color(Mathf.Min(i, max - i) / half, 0, 0, 1);
         return col;
     }
 
     private Color GetColPow(int i, int max)
     {
         if (max <= 0) return default;
-        float half = Mathf.Pow(max / 2, 2);
-        var col = new Color(Mathf.Pow(Mathf.Min(i, max - i), 2) / half, 0, 0, 1);
+        float half = Mathf.Pow(max / 2, 2f);
+        var col = new Color(Mathf.Pow(Mathf.Min(i, max - i), 2f) / half, 0, 0, 1);
         return col;
     }
 }

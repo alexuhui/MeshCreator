@@ -12,7 +12,7 @@ public class AssetEndNameEditAction : EndNameEditAction
     public Object assetObj;
     public Action callback;
 
-    public AssetEndNameEditAction(Object obj, Action cb = null)
+    public void Init(Object obj, Action cb = null)
     {
         assetObj = obj;
         callback = cb;
@@ -37,7 +37,7 @@ public class AssetEndNameEditAction : EndNameEditAction
         {
             AssetDatabase.CreateAsset(assetObj, path);
         }
-        
+       
         AssetDatabase.SaveAssets();
         AssetDatabase.Refresh();
 
