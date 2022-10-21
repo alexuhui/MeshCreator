@@ -7,7 +7,21 @@ using System.IO;
 
 public class Creator
 {
-    protected MeshSetting setting;
+    private bool foldout = false;
+
+    private MeshSetting _setting;
+    protected MeshSetting setting
+    {
+        get { return _setting; }
+        set {
+            if (value == _setting) return;
+            _setting = value;
+            settingEditor = Editor.CreateEditor(_setting);
+        }
+    }
+    private Editor settingEditor;
+
+
     protected string shape;
     protected string defName;
     protected Func<MeshSetting> createSetting;
@@ -16,20 +30,28 @@ public class Creator
     private Mesh newMesh;
 
 
+    private string name;
+
     public virtual void OnEnable()
     {
+        name = string.Format("{0}生成器", shape);
     }
 
     public virtual void OnDisable()
     {
     }
 
-    public virtual void OnGUI()
+    public void Excute()
     {
         GUILayout.Space(10);
         GUILayout.Label("--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------");
-        GUILayout.Label(string.Format("{0}生成器", shape));
+        foldout = EditorGUILayout.Foldout(foldout, name, true);
+        if (!foldout) return;
+        OnGUI();
+    }
 
+    public virtual void OnGUI()
+    {
         if(createSetting!= null)
             DrawSetting(createSetting);
 
@@ -44,14 +66,23 @@ public class Creator
         if (GUILayout.Button("新建配置"))
         {
             newSetting = createSetting();
-            ProjectWindowUtil.StartNameEditingIfProjectWindowExists(newSetting.GetInstanceID(), new AssetEndNameEditAction(newSetting), string.Format("Assets/Setting/Conf/{0}_mesh_setting", defName), AssetPreview.GetMiniThumbnail(newSetting), ".asset");
+            Action cb = () =>{ setting = newSetting; };
+            ProjectWindowUtil.StartNameEditingIfProjectWindowExists(newSetting.GetInstanceID(), new AssetEndNameEditAction(newSetting, cb), string.Format("Assets/Setting/Conf/{0}_mesh_setting", defName), AssetPreview.GetMiniThumbnail(newSetting), ".asset");
         }
         GUILayout.EndHorizontal();
+        DrawSettingProperty();
     }
 
     protected virtual void DrawSetting()
     {
     }
+
+    private void DrawSettingProperty()
+    {
+        if(settingEditor != null)
+            settingEditor.OnInspectorGUI();
+    }
+
 
     protected virtual void DrawCreate()
     {

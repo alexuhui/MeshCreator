@@ -38,7 +38,7 @@ public class MeshCreatorWin : EditorWindow
 
         for (int i = 0; i < creators.Length; i++)
         {
-            creators[i].OnGUI();
+            creators[i].Excute();
         }
     }
 }

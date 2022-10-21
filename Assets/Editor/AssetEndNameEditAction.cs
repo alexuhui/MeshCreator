@@ -1,17 +1,21 @@
 
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEditor.ProjectWindowCallback;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 public class AssetEndNameEditAction : EndNameEditAction
 {
     public Object assetObj;
+    public Action callback;
 
-    public AssetEndNameEditAction(Object obj)
+    public AssetEndNameEditAction(Object obj, Action cb = null)
     {
         assetObj = obj;
+        callback = cb;
     }
 
     public override void Action(int instanceId, string pathName, string resourceFile)
@@ -36,6 +40,8 @@ public class AssetEndNameEditAction : EndNameEditAction
         
         AssetDatabase.SaveAssets();
         AssetDatabase.Refresh();
+
+        callback?.Invoke();
     }
 
     public override void Cancelled(int instanceId, string pathName, string resourceFile)
