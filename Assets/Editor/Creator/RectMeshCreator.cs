@@ -18,6 +18,7 @@ public class RectMeshCreator:Creator
 
     protected override void DrawSetting()
     {
+        base.DrawSetting();
         var temp = (RectMeshSetting)EditorGUILayout.ObjectField("配置参数：", setting as RectMeshSetting, typeof(RectMeshSetting), false);
         if (temp is RectMeshSetting)
             setting = temp;
@@ -38,7 +39,7 @@ public class RectMeshCreator:Creator
         int row = hvCnt - 1;
         int col = wvCnt - 1;
         
-        Vertices[] verts = new Vertices[wvCnt * hvCnt * 6];
+        Vertices[] verts = new Vertices[row * col * 6];
         for (int h = 0; h < row; h++)
         {
             for (int w = 0; w < col; w++)
@@ -94,7 +95,6 @@ public class RectMeshCreator:Creator
                 }
             }
         }
-
         
         var vertices = new Vector3[verts.Length];
         var uv = new Vector2[verts.Length];
@@ -108,21 +108,14 @@ public class RectMeshCreator:Creator
             uv[i] = verts[i].uv;
             triangles[i] = i;
         }
-        Mesh mesh = new Mesh();
-        mesh.vertices = vertices;
-        mesh.uv = uv;
-        mesh.colors = colors;
-        mesh.triangles = triangles;
 
-        AssetDatabase.CreateAsset(mesh, "Assets/_chenyouhuiTest/mesh.mesh");
-        AssetDatabase.SaveAssets();
-        AssetDatabase.Refresh();
+        CreateMeshAsset(vertices, uv, triangles, colors);
     }
 
     private Color GetCol(int i, int max)
     {
         if (max <= 0) return default;
-        float half = max / 2;
+        float half = max / 2f;
         var col = new Color(Mathf.Min(i, max - i)/ half, 0, 0, 1);
         return col;
     }
