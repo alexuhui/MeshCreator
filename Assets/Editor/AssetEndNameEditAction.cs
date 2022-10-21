@@ -25,10 +25,15 @@ public class AssetEndNameEditAction : EndNameEditAction
                 Debug.LogFormat("取消了 {0} 的创建", path);
                 return;
             }
-            //AssetDatabase.DeleteAsset(path);
-        }
 
-        AssetDatabase.CreateAsset(assetObj, path);
+            assetObj.name = ori.name;
+            EditorUtility.CopySerialized(assetObj, ori);
+        }
+        else
+        {
+            AssetDatabase.CreateAsset(assetObj, path);
+        }
+        
         AssetDatabase.SaveAssets();
         AssetDatabase.Refresh();
     }
