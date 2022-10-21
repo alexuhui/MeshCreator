@@ -14,6 +14,8 @@ public class Creator
     protected Func<MeshSetting> createSetting;
 
     private MeshSetting newSetting;
+    private Mesh newMesh;
+
 
     public virtual void OnEnable()
     {
@@ -30,12 +32,15 @@ public class Creator
 
     public virtual void OnGUI()
     {
-        GUILayout.Space(5);
+        GUILayout.Space(10);
         GUILayout.Label("--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------");
         GUILayout.Label(string.Format("{0}生成器", shape));
 
         if(createSetting!= null)
             DrawSetting(createSetting);
+
+        if (setting != null)
+            DrawCreate();
     }
 
     private void DrawSetting(Func<MeshSetting> createSetting)
@@ -45,7 +50,7 @@ public class Creator
         if (GUILayout.Button("新建配置"))
         {
             newSetting = createSetting();
-            ProjectWindowUtil.StartNameEditingIfProjectWindowExists(newSetting.GetInstanceID(), endNameEditAction, string.Format("Assets/Setting/{0}_mesh_setting", defName), AssetPreview.GetMiniThumbnail(newSetting), "");
+            ProjectWindowUtil.StartNameEditingIfProjectWindowExists(newSetting.GetInstanceID(), endNameEditAction, string.Format("Assets/Setting/Conf/{0}_mesh_setting", defName), AssetPreview.GetMiniThumbnail(newSetting), ".asset");
         }
         GUILayout.EndHorizontal();
     }
@@ -54,23 +59,58 @@ public class Creator
     {
     }
 
+    protected virtual void DrawCreate()
+    {
+        GUILayout.Space(5);
+        if (GUILayout.Button("创建"))
+            Create();
+    }
+
     protected virtual void Create()
     {
         throw new Exception(this.GetType() + "未实现Create方法");
     }
 
+    protected virtual void CreateMeshAsset(Vector3[] vertices, Vector2[] uv, int[] triangles, Color[] colors = null)
+    {
+        newMesh = new Mesh();
+        newMesh.vertices = vertices;
+        newMesh.uv = uv;
+        newMesh.colors = colors;
+        newMesh.triangles = triangles;
+
+        ProjectWindowUtil.StartNameEditingIfProjectWindowExists(newMesh.GetInstanceID(), endNameEditAction, string.Format("Assets/Res/Mesh/{0}_mesh", defName), AssetPreview.GetMiniThumbnail(newMesh), ".mesh");
+    }
+
     protected virtual void OnConfirm(int instanceId, string pathName, string resourceFile)
     {
-        if(newSetting.GetInstanceID() == instanceId)
+        UnityEngine.Object obj = null;
+        if(newSetting?.GetInstanceID() == instanceId)
         {
-            AssetDatabase.CreateAsset(newSetting, pathName+".asset");
-            AssetDatabase.SaveAssets();
-            AssetDatabase.Refresh();
+            obj = newSetting;
+        }else if(newMesh?.GetInstanceID() == instanceId)
+        {
+            obj = newMesh;
         }
+
+        if (obj == null) return;
+        AssetDatabase.CreateAsset(obj, pathName + resourceFile);
+        AssetDatabase.SaveAssets();
+        AssetDatabase.Refresh();
     }
 
     protected virtual void OnCancel(int instanceId, string pathName, string resourceFile)
     {
+        if(newSetting != null)
+        {
+            UnityEngine.Object.Destroy(newSetting);
+            newSetting = null;
+        }    
+        if(newMesh != null)
+        {
+            UnityEngine.Object.Destroy(newMesh);
+            newMesh = null;
+        }
         Debug.LogFormat("OnCancel instanceId {0}  pathName {1}  resourceFile {2}", instanceId, pathName, resourceFile);
     }
 }

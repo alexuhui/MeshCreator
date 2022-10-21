@@ -94,7 +94,6 @@ public class RectMeshCreator:Creator
                 }
             }
         }
-
         
         var vertices = new Vector3[verts.Length];
         var uv = new Vector2[verts.Length];
@@ -108,15 +107,8 @@ public class RectMeshCreator:Creator
             uv[i] = verts[i].uv;
             triangles[i] = i;
         }
-        Mesh mesh = new Mesh();
-        mesh.vertices = vertices;
-        mesh.uv = uv;
-        mesh.colors = colors;
-        mesh.triangles = triangles;
 
-        AssetDatabase.CreateAsset(mesh, "Assets/_chenyouhuiTest/mesh.mesh");
-        AssetDatabase.SaveAssets();
-        AssetDatabase.Refresh();
+        CreateMeshAsset(vertices, uv, triangles, colors);
     }
 
     private Color GetCol(int i, int max)

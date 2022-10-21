@@ -9,11 +9,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 104e3c64bd508284d8880de72cad203e, type: 3}
   m_Name: rect_mesh_setting
   m_EditorClassIdentifier: 
   width: 10
+  widthVertCnt: 30
   height: 1
-  widthVertCnt: 12
-  heightVertCnt: 3
+  heightVertCnt: 4
   normal: {x: 0, y: 1, z: 0}
