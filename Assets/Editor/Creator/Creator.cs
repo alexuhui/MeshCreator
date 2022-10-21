@@ -3,11 +3,10 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 using System;
+using System.IO;
 
 public class Creator
 {
-    private MyEndNameEditAction endNameEditAction;
-
     protected MeshSetting setting;
     protected string shape;
     protected string defName;
@@ -19,15 +18,10 @@ public class Creator
 
     public virtual void OnEnable()
     {
-        endNameEditAction = new MyEndNameEditAction();
-        endNameEditAction.OnConfirm += OnConfirm;
-        endNameEditAction.OnCancel += OnCancel;
     }
 
     public virtual void OnDisable()
     {
-        endNameEditAction.OnConfirm -= OnConfirm;
-        endNameEditAction.OnCancel -= OnCancel;
     }
 
     public virtual void OnGUI()
@@ -50,7 +44,7 @@ public class Creator
         if (GUILayout.Button("新建配置"))
         {
             newSetting = createSetting();
-            ProjectWindowUtil.StartNameEditingIfProjectWindowExists(newSetting.GetInstanceID(), endNameEditAction, string.Format("Assets/Setting/Conf/{0}_mesh_setting", defName), AssetPreview.GetMiniThumbnail(newSetting), ".asset");
+            ProjectWindowUtil.StartNameEditingIfProjectWindowExists(newSetting.GetInstanceID(), new AssetEndNameEditAction(newSetting), string.Format("Assets/Setting/Conf/{0}_mesh_setting", defName), AssetPreview.GetMiniThumbnail(newSetting), ".asset");
         }
         GUILayout.EndHorizontal();
     }
@@ -79,7 +73,7 @@ public class Creator
         newMesh.colors = colors;
         newMesh.triangles = triangles;
 
-        ProjectWindowUtil.StartNameEditingIfProjectWindowExists(newMesh.GetInstanceID(), endNameEditAction, string.Format("Assets/Res/Mesh/{0}_mesh", defName), AssetPreview.GetMiniThumbnail(newMesh), ".mesh");
+        ProjectWindowUtil.StartNameEditingIfProjectWindowExists(newMesh.GetInstanceID(), new AssetEndNameEditAction(newMesh), string.Format("Assets/Res/Mesh/{0}_mesh", defName), AssetPreview.GetMiniThumbnail(newMesh), ".mesh");
     }
 
     protected virtual void OnConfirm(int instanceId, string pathName, string resourceFile)
@@ -93,8 +87,25 @@ public class Creator
             obj = newMesh;
         }
 
-        if (obj == null) return;
-        AssetDatabase.CreateAsset(obj, pathName + resourceFile);
+        //if (obj == null) return;
+        string path = pathName + resourceFile;
+        //var ori = AssetDatabase.LoadAssetAtPath(path, obj.GetType());
+        //if (ori != null)
+        //{
+        //    if(!EditorUtility.DisplayDialog("文件已存在", string.Format("{0}已存在，是否覆盖？", path), "覆盖", "取消"))
+        //    {
+        //        Debug.LogFormat("取消了 {0} 的创建", path);
+        //        return;
+        //    }
+        //    AssetDatabase.DeleteAsset(path);
+        //}
+
+        SaveAsset(obj, path);
+    }
+
+    private void SaveAsset(UnityEngine.Object obj, string path)
+    {
+        AssetDatabase.CreateAsset(obj, path);
         AssetDatabase.SaveAssets();
         AssetDatabase.Refresh();
     }

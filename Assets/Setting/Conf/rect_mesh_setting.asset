@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: rect_mesh_setting
   m_EditorClassIdentifier: 
   width: 10
-  widthVertCnt: 30
+  widthVertCnt: 42
   height: 1
-  heightVertCnt: 4
+  heightVertCnt: 5
   normal: {x: 0, y: 1, z: 0}
